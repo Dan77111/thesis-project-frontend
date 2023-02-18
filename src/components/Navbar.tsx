@@ -1,49 +1,51 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { useAppSelector } from '../app/hooks';
 
 const Navbar = () => {
+  const { activePage } = useAppSelector((state) => state.activePage);
+
   return (
-    <nav className='flex navbar'>
+    <nav className='navbar'>
       <ul className='navigation navigation--links'>
         <li>
           <NavLink
             to='/'
-            className={(isActive) =>
-              'navigation--element' +
-              (isActive ? ' navigation--element--active' : '')
-            }
+            className={`navigation--element ${
+              activePage === 'home' ? 'navigation--element--active' : ''
+            }`}
+          >
+            Home
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to='/indicators'
+            className={`navigation--element ${
+              activePage === 'indicators' ? 'navigation--element--active' : ''
+            }`}
           >
             Indicators
           </NavLink>
         </li>
         <li>
           <NavLink
-            to='/info'
-            className={(isActive) =>
-              'navigation--element' +
-              (isActive ? ' navigation--element--active' : '')
-            }
+            to='/analysis'
+            className={`navigation--element ${
+              activePage === 'analysis' ? 'navigation--element--active' : ''
+            }`}
           >
-            Info
+            Analysis
           </NavLink>
         </li>
         <li>
           <NavLink
-            to='/saved-queries'
-            className={(isActive) =>
-              'navigation--element' +
-              (isActive ? ' navigation--element--active' : '')
-            }
+            to='/info'
+            className={`navigation--element ${
+              activePage === 'info' ? 'navigation--element--active' : ''
+            }`}
           >
-            Saved Queries
+            Info
           </NavLink>
-        </li>
-      </ul>
-      <ul className='navigation navigation--login'>
-        <li>
-          <Link to='/login'>Login</Link>
-        </li>
-        <li>
-          <Link to='/register'>Register</Link>
         </li>
       </ul>
     </nav>

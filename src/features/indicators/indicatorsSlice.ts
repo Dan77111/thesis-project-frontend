@@ -1,23 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-
-export interface IndicatorsState {
-  indicatorNames: Map<string, string>;
-  locationNames: Map<string, string>;
-
-  indicatorsOrder: string[];
-  locationsOrder: string[];
-  yearsOrder: string[];
-
-  values: number[];
-
-  date: string;
-  status: 'idle' | 'loading' | 'failed';
-}
+import { IndicatorsState } from '../../utils/typedefs';
 
 const initialState: IndicatorsState = {
-  indicatorNames: new Map(),
-  locationNames: new Map(),
+  typeList: [],
+  types: [],
+  defaultYears: [],
+  uoms: [],
 
+  names: { indicators: {}, locations: {}, uom: {} },
   indicatorsOrder: [],
   locationsOrder: [],
   yearsOrder: [],
@@ -31,9 +21,9 @@ const initialState: IndicatorsState = {
 export const getCurrentIndicatorValues = createAsyncThunk(
   'indicators/getCurrent',
   async () => {
-    const res = await fetch(
-      'http://thesis-project-api.herokuapp.com/api/v1/current'
-    ).then((data) => data.json());
+    const res = await fetch('http://localhost:3000/api/v1/current').then((data) =>
+      data.json()
+    );
     return res;
   }
 );
@@ -56,12 +46,29 @@ export const indicatorsSlice = createSlice({
       .addCase(getCurrentIndicatorValues.fulfilled, (state, { payload }) => {
         state.status = 'idle';
         state.date = 'current';
-        state.indicatorNames = payload.desc.indicators;
-        state.locationNames = payload.desc.locations;
+        state.names.indicators = payload.desc.indicators;
+        state.names.locations = payload.desc.locations;
+        state.names.uom = payload.desc.uom;
         state.indicatorsOrder = payload.keys.indicators;
         state.locationsOrder = payload.keys.locations;
         state.yearsOrder = payload.keys.years;
-        state.values = payload.values;
+        state.values = payload.values.map((value: number) => {
+          if (value) {
+            return Number(value.toFixed(9));
+          } else {
+            return null;
+          }
+        });
+        state.typeList = payload.types;
+        state.types = state.indicatorsOrder.map(
+          (indicatorName) => payload.meta[indicatorName].type
+        );
+        state.defaultYears = state.indicatorsOrder.map(
+          (indicatorName) => payload.meta[indicatorName].default_years
+        );
+        state.uoms = state.indicatorsOrder.map(
+          (indicatorName) => payload.meta[indicatorName].uom
+        );
       });
   },
 });
